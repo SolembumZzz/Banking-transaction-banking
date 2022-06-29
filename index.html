@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/css/fontawesome-free-6.1.1-web/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <title>Document</title>
+</head>
+
+<body>
+  <div class="container">
+
+    <h1>Customer information</h1>
+
+    <!-- customer create -->
+    <form class="mb-3" id="frmCreate">
+      <div class="row mb-3">
+        <div class="col-xl-6">
+          <label for="fullName">FullName</label>
+          <input type="text" id="fullName" class="form-control">
+        </div>
+
+        <div class="col-xl-6">
+          <label for="email">Email</label>
+          <input type="email" id="email" class="form-control">
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-xl-6">
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" class="form-control">
+        </div>
+
+        <div class="col-xl-6">
+          <label for="address">Address</label>
+          <input type="text" id="address" class="form-control">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-xl-3">
+          <button type="button" id="btnCreate" class="btn btn-outline-primary">Create</button>
+        </div>
+      </div>
+    </form>
+
+
+    <table class="table table-hover" id="tbCustomer">
+      <thead>
+        <tr>
+          <!-- table header -->
+          <th scope="col">#</th>
+          <th scope="col">Fullname</th>
+          <th scope="col">Email</th>
+          <th scope="col">Phone</th>
+          <th scope="col">Address</th>
+          <th scope="col">Balance</th>
+          <th scope="col" colspan="5" class="text-center">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- table content -->
+      </tbody>
+    </table>
+
+  </div>
+
+  <!-- modal edit -->
+  <div id="mdEdit" class="modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Customer</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+
+          <form class="mb-3">
+            <div class="row mb-3">
+              <div class="col-xl-6">
+                <label for="fullNameUpEdit">FullName</label>
+                <input type="text" id="fullNameUpEdit" class="form-control">
+              </div>
+
+              <div class="col-xl-6">
+                <label for="emailUpEdit">Email</label>
+                <input type="email" id="emailUpEdit" class="form-control">
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-xl-6">
+                <label for="phoneUpEdit">Phone</label>
+                <input type="tel" id="phoneUpEdit" class="form-control">
+              </div>
+
+              <div class="col-xl-6">
+                <label for="addressUpEdit">Address</label>
+                <input type="text" id="addressUpEdit" class="form-control">
+              </div>
+            </div>
+
+          </form>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" id="btnSave" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- modal deactivate -->
+    <div id="mdDeactivate" class="modal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">WARNING</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>You sure, mate?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nah</button>
+            <button type="button" id="btnDeactivate" class="btn btn-danger">Damn sure</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <script src="assets/js/jquery-3.6.0.min.js"></script>
+  <script src="assets/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/app.js"></script>
+
+  <script>
+    let customer = new Customer();
+    let id = 0;
+
+    function loadCustomers() {
+
+      $.ajax({
+        type: "GET",
+        url: "http://localhost:3000/customers?isDeleted=false"
+      })
+        .done((data) => {
+          $.each(data, (i, item) => {
+            id = item.id;
+            let str = `
+                <tr id="tr_${item.id}">
+                  <th>${item.id}</th>
+                  <td>${item.fullName}</td>
+                  <td>${item.email}</td>
+                  <td>${item.phone}</td>
+                  <td>${item.address}</td>
+                  <td>${item.balance}</td>
+                  <td>
+                  <button data-id="${item.id}" class="btnEdit btn btn-outline-secondary" placeholder="Edit">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  </td>
+                  <td>
+                    <button data-id="${item.id}" class="btnDeposit btn btn-outline-success" placeholder="Deposit">
+                    <i class="fa-solid fa-plus"></i>
+                    </button>
+                  </td>
+                  <td>
+                    <button data-id="${item.id}" class="btnWithdraw btn btn-outline-warning" placeholder="Withdraw">
+                    <i class="fa-solid fa-minus"></i>
+                    </button>
+                  </td>
+                  <td>
+                    <button data-id="${item.id}" class="btnTransfer btn btn-outline-info" placeholder="Transfer">
+                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                    </button>
+                  </button>
+                    </td>
+                  <td>
+                    <button data-id="${item.id}" class="btnDeactivate btn btn-outline-danger" placeholder="Deactivate">
+                    <i class="fa-solid fa-ban"></i>
+                    </button>
+                  </td>
+                </tr>
+                `;
+
+            $("#tbCustomer tbody").prepend(str);
+          })
+          handleEditCustomer();
+          handleDeactivateCustomer();
+        })
+    }
+
+    $('#btnCreate').on('click', function () {
+      customer.id = ++id;
+      customer.fullName = $('#fullName').val();
+      customer.email = $('#email').val();
+      customer.phone = $('#phone').val();
+      customer.address = $('#address').val();
+      customer.balance = 0;
+      customer.isDeleted = false;
+
+      $.ajax({
+        type: "POST",
+        url: "http://localhost:3000/customers",
+        data: customer
+      })
+        .done((data) => {
+          let str = `
+              <tr id="tr_${data.id}">
+                <th>${data.id}</th>
+                <td>${data.fullName}</td>
+                <td>${data.email}</td>
+                <td>${data.phone}</td>
+                <td>${data.address}</td>
+                <td>${0}</td>
+                <td>
+                  <button data-id="${data.id}" class="btnEdit btn btn-outline-secondary" placeholder="Edit">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  </td>
+                  <td>
+                    <button data-id="${data.id}" class="btnDeposit btn btn-outline-success" placeholder="Deposit">
+                    <i class="fa-solid fa-plus"></i>
+                    </button>
+                  </td>
+                  <td>
+                    <button data-id="${data.id}" class="btnWithdraw btn btn-outline-warning" placeholder="Withdraw">
+                    <i class="fa-solid fa-minus"></i>
+                    </button>
+                  </td>
+                  <td>
+                    <button data-id="${data.id}" class="btnTransfer btn btn-outline-info" placeholder="Transfer">
+                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                    </button>
+                  </button>
+                    </td>
+                  <td>
+                    <button data-id="${data.id}" class="btnDeactivate btn btn-outline-danger" placeholder="Deactivate">
+                    <i class="fa-solid fa-ban"></i>
+                    </button>
+                  </td>
+              </tr>
+              `;
+
+          $("#tbCustomer tbody").prepend(str);
+        })
+
+      $("#frmCreate")[0].reset();
+
+      handleEditCustomer();
+      handleDeactivateCustomer();
+    })
+
+    $('#btnSave').on('click', function () {
+      customer.fullName = $('#fullNameUpEdit').val();
+      customer.email = $('#emailUpEdit').val();
+      customer.phone = $('#phoneUpEdit').val();
+      customer.address = $('#addressUpEdit').val();
+
+      return $.ajax({
+        type: "PUT",
+        url: "http://localhost:3000/customers/" + customer.id,
+        data: customer
+      })
+        .done((data) => {
+          let str = `
+              <tr id="tr_${data.id}">
+                <th>${data.id}</th>
+                <td>${data.fullName}</td>
+                <td>${data.email}</td>
+                <td>${data.phone}</td>
+                <td>${data.address}</td>
+                <td>${0}</td>
+                <td>
+                  <button data-id="${data.id}" class="btnEdit btn btn-outline-secondary" placeholder="Edit">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  </td>
+                  <td>
+                    <button data-id="${data.id}" class="btnDeposit btn btn-outline-success" placeholder="Deposit">
+                    <i class="fa-solid fa-plus"></i>
+                    </button>
+                  </td>
+                  <td>
+                    <button data-id="${data.id}" class="btnWithdraw btn btn-outline-warning" placeholder="Withdraw">
+                    <i class="fa-solid fa-minus"></i>
+                    </button>
+                  </td>
+                  <td>
+                    <button data-id="${data.id}" class="btnTransfer btn btn-outline-info" placeholder="Transfer">
+                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                    </button>
+                  </button>
+                    </td>
+                  <td>
+                    <button data-id="${data.id}" class="btnDeactivate btn btn-outline-danger" placeholder="Deactivate">
+                    <i class="fa-solid fa-ban"></i>
+                    </button>
+                  </td>
+              </tr>
+              `;
+
+          let currentRow = $('#tr_' + data.id);
+          currentRow.replaceWith(str);
+
+          handleEditCustomer();
+          handleDeactivateCustomer();
+        })
+        .fail((err) => {
+          alert("Update fail")
+        })
+
+      $('#mdEdit').modal('hide');
+    })
+
+    $('#btnDeactivate').on('click', function () {
+      customer.isDeleted = true;
+
+      return $.ajax({
+        type: "PUT",
+        url: "http://localhost:3000/customers/" + customer.id,
+        data: customer
+      })
+        .done((data) => {
+          let currentRow = $('#tr_' + data.id);
+          currentRow.remove;
+
+          // handleEditCustomer();
+          // handleDeactivateCustomer();
+        })
+        .fail((err) => {
+          alert("Deactivate fail")
+        })
+
+      $('#mdDeactivate').modal('hide');
+    })
+
+    function selectCustomer(targetId) {
+      return $.ajax({
+        type: "GET",
+        url: "http://localhost:3000/customers/" + targetId,
+      })
+        .done((data) => {
+          customer = data;
+        })
+        .fail((err) => {
+          alert("Id not found")
+        })
+    }
+
+    function handleEditCustomer() {
+      $(".btnEdit").on("click", function () {
+        let id = $(this).data("id");
+
+        selectCustomer(id).then(function () {
+          $("#fullNameUpEdit").val(customer.fullName);
+          $("#emailUpEdit").val(customer.email);
+          $("#phoneUpEdit").val(customer.phone);
+          $("#addressUpEdit").val(customer.address);
+
+          $("#mdEdit").modal("show");
+        });
+      })
+    }
+
+    function handleDeactivateCustomer() {
+      $(".btnDeactivate").on("click", function () {
+        let id = $(this).data("id");
+
+        selectCustomer(id).then(function () {
+          $("#mdDeactivate").modal("show");
+        })
+      })
+    }
+
+    loadCustomers();
+
+
+  </script>
+</body>
+
+</html>

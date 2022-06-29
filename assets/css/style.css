@@ -1,0 +1,13 @@
+table tbody tr:hover {
+    background-color: lightgray;
+}
+
+table thead tr {
+    background-color: #4caf50;
+    color: white;
+}
+
+.table>tbody>tr:hover {
+    /* background-color: darkblue;
+    color: white; */
+}
